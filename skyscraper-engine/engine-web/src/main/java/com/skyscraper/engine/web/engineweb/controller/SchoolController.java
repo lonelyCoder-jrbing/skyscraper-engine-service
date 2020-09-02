@@ -114,7 +114,5 @@ public class SchoolController {
     public PaasResponnse<MajorResponse> getMajorBySchoolId(@RequestBody Long id) {
         return PaasResponnse.success(majorService.getMajorBySchoolId(id));
     }
-
-
 }
 
