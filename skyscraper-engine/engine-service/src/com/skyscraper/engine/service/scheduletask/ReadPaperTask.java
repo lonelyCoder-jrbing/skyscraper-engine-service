@@ -1,14 +1,18 @@
 package com.skyscraper.engine.service.scheduletask;
 
 import com.alibaba.fastjson.JSON;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.skyscraper.engine.service.kafka.kafkaProducer;
 import com.skyscraper.engine.service.request.PaperRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.index.qual.NonNegative;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * desc:
  **/
 @Component
+@Slf4j
 public class ReadPaperTask {
     @Autowired
     ScheduledExecutorService executorService;
@@ -30,26 +35,35 @@ public class ReadPaperTask {
     @Autowired
     kafkaProducer kafkaProducer;
 
+    @Autowired
+    Cache cache;
 
     @PostConstruct
     public void init() {
+        log.info("start executorService....");
         executorService.scheduleWithFixedDelay(() -> {
+            log.info("i am working...");
             read();
         }, 0L, 10L, TimeUnit.SECONDS);
+
+    }
+
+    @PreDestroy
+    public void destory() {
+        log.info("destory executorService...");
+        executorService.shutdown();
     }
 
     public void read() {
+        log.info("read paper.....");
         String path = "D:\\project\\skyscraper-engine-service\\skyscraper-engine\\engine-web\\src\\main\\resources\\zanzuo";
-        String paperName = path.split("/")[path.split("/").length - 1];
-        LoadingCache<Object, String> build = Caffeine.newBuilder()
-                .maximumSize(10_000)
-                .expireAfterWrite(5, TimeUnit.MINUTES)
-                .refreshAfterWrite(1, TimeUnit.MINUTES)
-                .build(key -> paperName);
-        File file = new File(path);
+//        String paperName = path.split("/")[path.split("").length - 1];
+        String paperName = "zanzuo";
+        log.info("papername           :{}", paperName);
         BufferedReader reader = null;
         StringBuffer sbf = new StringBuffer();
         try {
+            File file = new File(path);
             reader = new BufferedReader(new FileReader(file));
             String tempStr;
             while ((tempStr = reader.readLine()) != null) {
@@ -60,10 +74,15 @@ public class ReadPaperTask {
             paperRequest.setMajor("demo");
             paperRequest.setPaperId(UUID.randomUUID().toString());
             paperRequest.setSchool("demo");
-
-            kafkaProducer.send(paperName, JSON.toJSONString(paperRequest));
+            paperRequest.setTitle(paperName);
+            @NonNegative long l = cache.estimatedSize();
+            log.info("l:  {}", l);
+            if (l < 1) {
+                kafkaProducer.send(paperName, JSON.toJSONString(paperRequest));
+            }
+            cache.get(paperName, v -> sbf.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("e=={}", e);
         } finally {
             if (reader != null) {
                 try {
