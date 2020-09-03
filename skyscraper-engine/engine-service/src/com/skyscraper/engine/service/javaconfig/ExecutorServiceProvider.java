@@ -20,6 +20,7 @@ public class ExecutorServiceProvider {
     public ScheduledExecutorService provideExecutorService() {
         return new ScheduledThreadPoolExecutor(3, r -> {
             Thread thread = new Thread(r, "paper-read-task");
+
             thread.setUncaughtExceptionHandler(
                     (t1, e) -> {
                         log.info(t1.getName() + "线程抛出的异常" + e);

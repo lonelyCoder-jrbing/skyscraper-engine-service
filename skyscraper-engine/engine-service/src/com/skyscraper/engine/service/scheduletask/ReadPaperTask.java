@@ -18,7 +18,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,10 +43,15 @@ public class ReadPaperTask {
     @PostConstruct
     public void init() {
         log.info("start executorService....");
-        executorService.scheduleWithFixedDelay(() -> {
-            log.info("i am working...");
-            read();
+        ScheduledFuture<?> read_error = executorService.scheduleWithFixedDelay(() -> {
+            try {
+                log.info(Thread.currentThread().getName() + " " + "i am working...");
+                read();
+            } catch (Exception error) {
+                log.error("error={},line={}",error,error.getMessage());
+            }
         }, 0L, 10L, TimeUnit.SECONDS);
+
 
     }
 
@@ -56,10 +63,12 @@ public class ReadPaperTask {
 
     public void read() {
         log.info("read paper.....");
+
         String path = "D:\\project\\skyscraper-engine-service\\skyscraper-engine\\engine-web\\src\\main\\resources\\zanzuo";
-//        String paperName = path.split("/")[path.split("").length - 1];
-        String paperName = "zanzuo";
+        String paperName = path.split("/")[path.split("").length - 1];
+//        String paperName = "zanzuo";
         log.info("papername           :{}", paperName);
+
         BufferedReader reader = null;
         StringBuffer sbf = new StringBuffer();
         try {
