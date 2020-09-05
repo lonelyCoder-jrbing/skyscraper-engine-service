@@ -1,6 +1,9 @@
 package com.skyscraper.engine.service.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +13,9 @@ import java.io.Serializable;
  * desc:
  **/
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PaperRequest implements Serializable {
     private static final long serialVersionUID = 8347634164394128232L;
     private String paperId;
