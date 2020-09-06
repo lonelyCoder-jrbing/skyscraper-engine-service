@@ -3,6 +3,7 @@ package com.skyscraper.engine.web.engineweb.aspect;
 import com.skyscraper.engine.service.common.BizException;
 import com.skyscraper.engine.service.common.ExceptionCode;
 import com.skyscraper.engine.service.common.PaasResponnse;
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -22,26 +23,33 @@ public class ControllerAspect {
     private static final String POINT_CUT = "com.skyscraper.engine.web.engineweb.aspect.ControllerAspect.myPointcut()";
     private final Logger logger = LoggerFactory.getLogger(ControllerAspect.class);
 
+    private static String METHOD_NAME = "";
+    private static String CLASS_NAME = "";
+
+
     // 切入点表达式按需配置
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && execution(public * *(..))")
     private void myPointcut() {
     }
 
+
     @Before(POINT_CUT)
     public void before(JoinPoint joinPoint) {
         String className = joinPoint.getTarget().getClass().getName();
+        CLASS_NAME = className;
         String methodName = joinPoint.getSignature().getName();
+        METHOD_NAME = methodName;
         Object[] args = joinPoint.getArgs();
         StringBuilder log = new StringBuilder();
         for (Object arg : args) {
             log.append(arg + " ");
         }
-        logger.info("#clazzname:  " + className + "@@method@@" + methodName + "is start..params==={}", log.toString());
+        logger.info("#clazzname:" + className + "@@method@@" + methodName + "is start..params={}", log.toString());
     }
 
     @AfterReturning(value = POINT_CUT, returning = "returnVal")
     public void afterReturin(Object returnVal) {
-        logger.warn("方法正常结束了,方法的返回值:" + returnVal);
+        logger.warn("#clazzname:{}   @@method@@:{}   returnVal={}", CLASS_NAME, METHOD_NAME, returnVal);
     }
 
     @AfterThrowing(value = POINT_CUT, throwing = "e")

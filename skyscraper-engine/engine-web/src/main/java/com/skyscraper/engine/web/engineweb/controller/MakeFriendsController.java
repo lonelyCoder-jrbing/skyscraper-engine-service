@@ -7,10 +7,7 @@ import com.skyscraper.engine.service.request.AgreeMakeFriendsWithReq;
 import com.skyscraper.engine.service.request.MakeFriendsReq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,7 +17,7 @@ import java.util.List;
  * desc: 添加好友申请以及同意
  **/
 @RestController
-@RequestMapping(value = "/runtime/school")
+@RequestMapping(value = "/runtime/friends")
 @Slf4j
 public class MakeFriendsController {
 
@@ -42,14 +39,14 @@ public class MakeFriendsController {
      * @param userId
      * @return
      */
-    @PostMapping(path = "/getOfferFriendsList")
-    public PaasResponnse<List<User>> getOfferFriendsList(@RequestBody long userId) {
+    @GetMapping(path = "/getOfferFriendsList")
+    public PaasResponnse<List<User>> getOfferFriendsList(@RequestParam long userId) {
         return PaasResponnse.success(makeFriendsService.getOfferFriendsList(userId));
     }
 
 
     /*****
-     * 同意好友申请,并且展示好友申请列表
+     * 同意好友申请,并且展示好友列表
      * @param req
      * @return
      */

@@ -2,6 +2,7 @@ package com.skyscraper.engine.jpa.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Table(name = "t_user")
 @Setter
 @Getter
+@ToString
 public class User {
     @Id
     @GeneratedValue
@@ -24,9 +26,9 @@ public class User {
     private int userAge;
     @Column(name = "gender", nullable = true, length = 20, columnDefinition = "varchar(10) comment '性别'")
     private String gender;
-    @Column(name = "job", nullable = true, length = 20, columnDefinition = "varchar(10) comment '职业'")
+    @Column(name = "job", nullable = true, length = 20, columnDefinition = "varchar(30) comment '职业'")
     private String job;
-    @Column(name = "company", nullable = true, length = 20, columnDefinition = "varchar(10) comment '公司'")
+    @Column(name = "company", nullable = true, length = 20, columnDefinition = "varchar(30) comment '公司'")
     private String company;
     @Column(name = "friends_id_list", nullable = true, length = 20, columnDefinition = "varchar(100) comment '好友列表'")
     private String friendsIdList;

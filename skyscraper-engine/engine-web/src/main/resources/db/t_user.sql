@@ -1,0 +1,1 @@
+alter table `t_user` convert to character set utf8;
