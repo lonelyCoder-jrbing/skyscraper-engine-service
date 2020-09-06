@@ -1,6 +1,8 @@
 package com.skyscraper.engine.service.makefriendsservice.impl;
 
+import com.skyscraper.engine.jpa.entity.FriendsOffer;
 import com.skyscraper.engine.jpa.entity.User;
+import com.skyscraper.engine.jpa.repository.FriendsOfferRepository;
 import com.skyscraper.engine.jpa.repository.MakeFriendsRepository;
 import com.skyscraper.engine.service.makefriendsservice.MakeFriendsService;
 import com.skyscraper.engine.service.request.AgreeMakeFriendsWithReq;
@@ -9,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,40 +24,28 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MakeFriendsServiceImpl implements MakeFriendsService {
 
+    @Autowired
+    FriendsOfferRepository friendsOfferRepository;
 
     @Autowired
     MakeFriendsRepository makeFriendsRepository;
 
     @Override
     public boolean makeFriendsWith(MakeFriendsReq req) {
-        User one = makeFriendsRepository.getOne(req.getFriendId());
-        String friendsIdList = one.getFriendsIdList();
-        log.info("makeFriendsWith@@friendsIdList======{}", friendsIdList);
-        if (StringUtils.isNotEmpty(friendsIdList)) {
-            String newFriendsIdList = Arrays.stream(friendsIdList.concat(",")
-                    .concat(String.valueOf(req.getId())).split(","))
-                    .collect(Collectors.toSet())
-                    .stream().map(el -> el.concat(","))
-                    .collect(Collectors.joining());
-
-            one.setFriendsOfferIdList(newFriendsIdList);
-            one.setOfferContent(req.getOfferContent());
-        } else {
-            one.setOfferContent(req.getOfferContent());
-            one.setFriendsOfferIdList(String.valueOf(req.getId()));
-            log.info("makeFriendsWith@@one======{}", one);
-        }
-        return makeFriendsRepository.save(one) == null ? false : true;
+        FriendsOffer friendsOffer = new FriendsOffer();
+        friendsOffer.setOfferFriendId(req.getFriendId());
+        friendsOffer.setUserId(req.getId());
+        friendsOffer.setOfferContent(req.getOfferContent());
+        log.info("makeFriendsWith@@friendsIdList======{}", friendsOffer);
+        return friendsOfferRepository.save(friendsOffer) == null ? false : true;
     }
 
     @Override
     public List<User> getOfferFriendsList(long userId) {
-        User user = makeFriendsRepository.findById(userId).get();
-        String friendsIdList = user.getFriendsOfferIdList();
-        if (StringUtils.isNotEmpty(friendsIdList)) {
-            String[] split = friendsIdList.split(",");
-            List<Long> list = Arrays.stream(split).map(el -> Long.valueOf(el)).collect(Collectors.toList());
-            List<User> userList = makeFriendsRepository.findAllById(list);
+        List<Long> friendIds = friendsOfferRepository.queryFriendsOfferByIdUseSQL(userId);
+        log.info("getOfferFriendsList=friendIds={}", friendIds);
+        if (friendIds != null && friendIds.size() > 0) {
+            List<User> userList = makeFriendsRepository.findAllById(friendIds);
             return userList;
         } else {
             return null;

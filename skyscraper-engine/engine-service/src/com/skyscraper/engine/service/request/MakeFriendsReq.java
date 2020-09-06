@@ -11,9 +11,9 @@ import lombok.Data;
 public class MakeFriendsReq {
 
     //自己的id
-    private long id;
+    private String id;
     //朋友的id
-    private long friendId;
+    private String friendId;
     //申请的内容
     private String offerContent;
 }

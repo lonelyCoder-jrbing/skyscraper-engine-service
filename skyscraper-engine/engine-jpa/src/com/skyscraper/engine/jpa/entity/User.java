@@ -34,7 +34,5 @@ public class User {
     private String friendsIdList;
     @Column(name = "friends_offer_id_list", nullable = true, length = 20, columnDefinition = "varchar(100) comment '添加好友申请列表'")
     private String friendsOfferIdList;
-    @Column(name = "offer_content", nullable = true, length = 20, columnDefinition = "varchar(50) comment '申请内容'")
-    private String offerContent;
 
 }
