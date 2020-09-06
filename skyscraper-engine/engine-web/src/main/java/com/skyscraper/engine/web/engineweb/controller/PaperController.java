@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * create by sumerian on 2020/9/5
@@ -47,6 +50,17 @@ public class PaperController {
         boolean b = paperService.genComment(paperComment);
         return PaasResponnse.success(b);
     }
+
+    @PostMapping(path = "/getAllComment")
+    public PaasResponnse<Map<Long, PaperComment> > getAllComment() {
+
+        PaperComment paperComment = new PaperComment();
+        List<PaperComment>list = paperService.getAllComment();
+        Map<Long, PaperComment> map = list.stream().collect(Collectors.toMap(PaperComment::getId, Function.identity(), (k1, k2) -> k1));
+        return PaasResponnse.success(map);
+    }
+
+
 
 
 }
